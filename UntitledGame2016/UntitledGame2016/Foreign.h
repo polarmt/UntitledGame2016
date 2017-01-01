@@ -19,7 +19,6 @@ public:
 		return hitbox.getGlobalBounds();
 	}
 
-
 	void fire() {
 		hitbox.move({ -1.0f, 0 });
 	}
