@@ -3,8 +3,10 @@
 #include <vector>
 #include "Hero.h"
 #include "Environment.h"
-#include "TextureManager.h"
 #include "Foreign.h"
+#include "TextureManager.h"
+
+using namespace Collision;
 
 int main()
 {
@@ -16,34 +18,8 @@ int main()
 	window.create(sf::VideoMode(height, width, desktop.bitsPerPixel), "Untitled Game");
 	window.setFramerateLimit(60);
 
-	//Textures
-	TextureManager textures;
-	textures.addTexture("dud.png");
-	textures.addTexture("sample_spritesheet.png");
-	sf::Sprite block(textures.loadTexture("dud.png"));
-	sf::Sprite test(textures.loadTexture("sample_spritesheet.png"), sf::IntRect(0, 0, 64, 64));
-	test.setPosition(150, 150);
-	block.setPosition(150, 150);
-
-	//Objects (size, position)
-	sf::Clock cl;
-
-	Hero p({ 0, 250 }, textures.loadTexture("sample_spritesheet.png"));
-
-	std::vector<Block> blocks;
-	Block b({ 1000, 50 }, { 0, 500 });
-	Block c({ 100, 30 }, { 300, 480 });
-	Block platform({ 100, 100 }, { 540, 400 });
-	Block platform1({ 300, 50 }, { 520, 250 });
-	Block platform2({ 300, 50 }, { 200, 400 });
-	blocks.push_back(b);
-	blocks.push_back(platform);
-	blocks.push_back(platform1);
-	blocks.push_back(platform2);
-
-	Foreign missile({ 500, 460 });
-
 	//Logic variables
+	sf::Clock cl;
 	bool fall = true;
 	bool jumping = false;
 	int animation = 0;
@@ -55,6 +31,22 @@ int main()
 	const float gravity = 1.0;
 	const float moveSpeed = 4.5;
 
+	//Objects (size, position) 
+
+	Hero p({ 0, 250 }, "sample_spritesheet.png");
+	std::vector<Block> blocks;
+	Block b({ 1000, 50 }, { 0, 500 }, "box.png");
+	Block c({ 50, 50 }, { 300, 350 }, "box.png", 45);
+
+	/*Block platform({ 100, 100 }, { 540, 400 });
+	Block platform1({ 300, 50 }, { 520, 250 });
+	Block platform2({ 300, 50 }, { 200, 400 });
+	blocks.push_back(b);
+	blocks.push_back(platform);
+	blocks.push_back(platform1);
+	blocks.push_back(platform2);*/
+
+	Foreign missile({ 500, 460 });
 
 	while (window.isOpen()) {
 		bool collisions = false;	//collision?
@@ -125,8 +117,16 @@ int main()
 		}
 
 	//Foreign Collisions
+		if (p.collisionTest(c.getSprite())) {
+			std::cout << "Pixel Perfect!" << delayCounter << std::endl;
+		}
+
+		if (p.collision(c.getSprite())) {
+			std::cout << "Bounding box!" << delayCounter << std::endl;
+		}
+
 		missile.fire();
-		if (p.foreignInteract(missile)) {
+		if (p.fCollisionTest(missile)) {
 			p.takeDamage(5);
 		}
 
@@ -138,13 +138,12 @@ int main()
 // -- Draw --
 		window.clear();
 
-		window.draw(block);
-		window.draw(test);
-		platform.draw(window);
-		platform1.draw(window);
-		platform2.draw(window);
+		//platform.draw(window);
+		//platform1.draw(window);
+		//platform2.draw(window);
 		missile.draw(window);
 		b.draw(window);
+		c.draw(window);
 		p.draw(window);
 
 		window.display();
