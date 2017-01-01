@@ -76,6 +76,14 @@ public:
 		return heroSprite.getPosition().x;
 	}
 
+	sf::FloatRect getGlobalBounds2() {
+		return heroSprite.getGlobalBounds();
+	}
+
+	void setX(float position) {
+		heroSprite.setPosition({ position, heroSprite.getPosition().y });
+	}
+
 	void setY(float position) {
 		heroSprite.setPosition({ heroSprite.getPosition().x, position });
 	}
