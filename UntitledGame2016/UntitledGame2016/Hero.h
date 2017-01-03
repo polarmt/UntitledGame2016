@@ -8,14 +8,14 @@
 #include "TextureManager.h"
 
 class Hero {
-	sf::RectangleShape hitbox; //hitbox
 	TextureManager textures;
 	sf::Texture heroTexture;
 	sf::Sprite heroSprite;
+	int health = 100;	
+public:
+	sf::RectangleShape hitbox; //hitbox
 	const float cooldown = 500000;
 	float delay = 0;
-	int health = 100;
-public:
 	Hero(sf::Vector2f newPos, const std::string& fileName) {
 		textures.addTexture(fileName);
 		heroTexture = textures.loadTexture(fileName);
@@ -25,27 +25,34 @@ public:
 
 		Collision::CreateTextureAndBitmask(heroTexture, fileName);
 
-		hitbox.setSize({30, 59});
-		hitbox.setPosition(newPos.x + 17, newPos.y + 5);
+		hitbox.setSize({36, 63});
+		hitbox.setPosition(newPos.x + 14, newPos.y + 1);
 		hitbox.setFillColor(sf::Color::Transparent);
 	}
-
-	bool collisionTest(const sf::Sprite &obj2) {
-		if (Collision::PixelPerfectTest(heroSprite, obj2)) {
-			return true;
-		}
-		return false;
+	
+	sf::Sprite getSprite() {
+		return heroSprite;
 	}
 
+	//pixel perfect
+	/*bool collisionTest(const sf::Sprite &obj2) {
+		if (delay <= 0) {
+			if (Collision::PixelPerfectTest(heroSprite, obj2)) {
+				delay = cooldown;
+				return true;
+			}
+			return false;
+		}
+		return false;
+	}*/
+
+	//bounding test
 	bool collision(const sf::Sprite &obj2) {
-		if (Collision::BoundingBoxTest(heroSprite, obj2)) {
-			return true;
-		}
-		return false;
+		return Collision::BoundingBoxTest(heroSprite, obj2);
 	}
 
-	//Thinking of implementing pixel perfect collisions with foreign objects instead of hitboxes
-	bool fCollisionTest(Foreign &object) {
+	//For Foreign Objects (does not use perfect pixel collision)
+	bool collisionTest(Foreign &object) {
 		if (delay <= 0) {
 			if (hitbox.getGlobalBounds().intersects(object.getGlobalBounds())) {
 				delay = cooldown;
@@ -58,6 +65,9 @@ public:
 
 	sf::FloatRect getGlobalBounds() {
 		return hitbox.getGlobalBounds();
+	}
+	sf::FloatRect getGlobalBounds2(){
+		return heroSprite.getGlobalBounds();
 	}
 
 	void showHitBox() {
@@ -97,8 +107,13 @@ public:
 	int getX() {
 		return heroSprite.getPosition().x;
 	}
+	void setX(float position) {
+		heroSprite.setPosition({ position,heroSprite.getPosition().y });
+		hitbox.setPosition(heroSprite.getPosition().x + 14, position + 1);
+	}
 	void setY(float position) {
 		heroSprite.setPosition({ heroSprite.getPosition().x, position });
+		hitbox.setPosition(heroSprite.getPosition().x + 14, position + 1);
 	}
 };
 
